@@ -1,7 +1,10 @@
 """
 Django field that autogenerate code for django.
 
-/!\ Not tested with unit tests yet
+/!\ Not tested with unit tests yet in this module
+However, I tested it with unitests in a live django project and it did fine.
+But don't take my word for it and use with care.
+
 """
 
 from django.db import models
@@ -19,6 +22,7 @@ class CodeField(models.CharField):
         return generate_code(get_code_from_model, model=self.model, 
                              field=self.attname, **kwargs)
     
+    
     #TODO: find a cleaner way to do this and allow any argument to pass
     def __init__(self, *args, **kwargs):
     
@@ -28,6 +32,7 @@ class CodeField(models.CharField):
         gen_kwargs['min_length'] = kwargs.pop('min_length', 3)
         gen_kwargs['inc'] = kwargs.pop('inc', 1)
         gen_kwargs['pad_with'] = kwargs.pop('pad_with', '0')
+        gen_kwargs['default'] = kwargs.pop('default', '0')
         
         kwargs.setdefault('blank', True)
         kwargs.setdefault('unique', True)
@@ -41,9 +46,17 @@ class CodeField(models.CharField):
     
         
         code = getattr(model_instance, self.attname, None)
-        code = code or generate_code(get_code_from_model, 
-                                     model=model_instance.__class__, 
-                                     field=self.attname, **self.gen_kwargs)
+        
+        if not code:
+        
+            # check if the code match the prefix / suffix
+            #get_code_from_model
+            
+            code = generate_code(get_code_from_model, 
+                                 model=model_instance.__class__, 
+                                 field=self.attname, **self.gen_kwargs)
+                                     
+                                     
         
         setattr(model_instance, self.attname, code)
         return code
