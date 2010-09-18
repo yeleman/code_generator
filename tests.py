@@ -5,6 +5,7 @@
 from django.test import TestCase
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import exceptions
 
 from code_generator import *
 
@@ -31,36 +32,30 @@ class CodeGeneratorTests(TestCase):
                                             
     def test_get_code_from_model(self):
     
-    
         self.assertEqual(get_code_from_model(User, 'username', default='0'), 
                          '0')
-        
-        try:
-            get_code_from_model(User, 'username')
-            self.fail()
-        except ValueError:
-            pass
+        self.assertEqual(get_code_from_model(User, 'username'), '0')
             
         User.objects.create(username='toto')
         
         try:
             get_code_from_model(User, 'unexistant_field')
             self.fail()
-        except AttributeError:
+        except exceptions.FieldError:
             pass
+        
+        # ordering is on the code field by default
+        self.assertEqual(get_code_from_model(User, 'username'), 'toto')
+        
+        User.objects.create(username='bobo')
         
         self.assertEqual(get_code_from_model(User, 'username'), 'toto')
         
-        User.objects.create(username='ben')
-        
-        self.assertEqual(get_code_from_model(User, 'username'), 'ben')
-        
-        self.assertEqual(get_code_from_model(User, 'username', 
-                                             order_by='username'),  'toto')
-                                             
-        self.assertEqual(get_code_from_model(User, 'username', 
-                                     qs=User.objects.exclude(username='ben')),
-                         'toto')
+        self.assertEqual(get_code_from_model(User, 'username',  order_by='id'), 
+                         'bobo')
+                                       
+        qs = User.objects.exclude(username='bobo')      
+        self.assertEqual(get_code_from_model(User, 'username', qs=qs), 'toto')
 
 
     def test_generate_code(self):
@@ -96,7 +91,8 @@ class CodeGeneratorTests(TestCase):
         self.assertEqual(generate_code(get_code_from_model, prefix='L', 
                                         default='0', min_length=3, 
                                         field='username', model=User), 'L002')
-                                        
+        
+        User.objects.all().delete()                              
         User.objects.create(username='2a2')
         
         self.assertEqual(generate_code(get_code_from_model, 

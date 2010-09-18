@@ -11,24 +11,24 @@ import itertools
 """
 
 def get_code_from_model(model, field='code', default='0', 
-                        order_by='code', qs=None, **kwargs):
+                        order_by=None, qs=None, **kwargs):
     """
         Get the last code from 'model', where the code is in 'field'.
         You can provide your own qs, otherwise it's going to take all the 
         entries then reverse sort it by 'order_by' and take the first one.
         
-        If order_by is none, there will be no sorting so you can provide your
-        own sorting in qs.
+        If order_by is unset, it will be equal to the code field name.
         
         If no entry is match, returns the 'default' value.
     """
 
-
     if not qs:
         qs = model.objects.all()
         
-    if order_by:
-        qs = qs.order_by('-'+order_by)
+    if order_by is None:
+        order_by = field
+    
+    qs = qs.order_by('-'+order_by)
         
     try:
         return getattr(qs[0], field)
@@ -81,6 +81,10 @@ def generate_tracking_tag(start='2a2', base_numbers='2345679',
         
         Default values are empirically proven to be easy to read and type
         on old phones.
+        
+        The code format alternate a char from base_number and base_letters,
+        be sure the 'start' argument follows this convention or you'll
+        get a ValueError.
 
         e.g:
 
@@ -99,12 +103,18 @@ def generate_tracking_tag(start='2a2', base_numbers='2345679',
 
     next_tag = []
 
-    matrix_generator = itertools.cycle((base_numbers,base_letters))
+    matrix_generator = itertools.cycle((base_numbers, base_letters))
 
     for index, c in enumerate(start):
 
         matrix = matrix_generator.next()
-        i = matrix.index(c)
+        
+        try:
+            i = matrix.index(c)
+        except ValueError:
+            raise ValueError(u"The 'start' argument must be correctly "\
+                             u"formated. Check doctstring for more info.")
+            
         try:
             next_char = matrix[i+1]
             next_tag.append(next_char)

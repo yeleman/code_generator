@@ -13,14 +13,13 @@ class CodeField(models.CharField):
     """
         Store an ordinary text code to increment with the following 
     """
-    __metaclass__ = models.SubfieldBase
 
     
     def generate_code(self, **kwargs):
         return generate_code(get_code_from_model, model=self.model, 
                              field=self.attname, **kwargs)
     
-    
+    #TODO: find a cleaner way to do this and allow any argument to pass
     def __init__(self, *args, **kwargs):
     
         gen_kwargs = {}
