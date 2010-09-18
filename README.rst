@@ -111,8 +111,11 @@ model attribute, we created a model field for that purpore. Just do::
         code = CodeField(**options)
 
 Options can be any args of models.CharField (such as the mandatory max_length)
-and of 'generate_code' excepted 'get_previous_code_function', 'model' and 
-'field'.
+and of 'increment_base_10'
+
+We will try to add a more generic field that accept an function fromt the 
+code generator later, for now it is limited to 'increment_base_10'.
+
 
 Testing
 =======
