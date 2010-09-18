@@ -10,12 +10,7 @@ Setup
 
 Drop the directory in your Python PATH
 
-Testing
-=======
 
-Module is covered by unit tests. However, while the module itself is not
-tied to Django (you can completly use it without django installed), tests are
-testing django features and therefor require Django to be installed.
 
 Usage
 =====
@@ -90,3 +85,45 @@ You can of course create your own functions to get custom previous / next code.
 They must accept **kwargs and the function to get next code should accept the
 previous code as first argument. **kwargs from generate_code will be passed
 to both of them.
+
+
+Django integration
+===================
+
+This module is not tied to any framework and you can use it in any Python
+project. However, some helpers for Django are available.
+
+::
+
+    get_code_from_model(model, field='code', default='0', 
+                        order_by='code', qs=None, **kwargs)
+                        
+This is a meant to be passed as 'get_previous_code_function' and will 
+look for a previous code in the given field for the passed model.
+
+As most of the time you will just want to have a generated code as a
+model attribute, we created a model field for that purpore. Just do::
+
+    from code_generator.fields import CodeField
+    
+    class MyModel(models.Model):
+    
+        code = CodeField(**options)
+
+Options can be any args of models.CharField (such as the mandatory max_length)
+and of 'generate_code' excepted 'get_previous_code_function', 'model' and 
+'field'.
+
+Testing
+=======
+
+Module is covered by unit tests. However, while the module itself is not
+tied to Django (you can completly use it without django installed), tests are
+testing django features and therefor require Django to be installed.
+
+Documentation
+==============
+
+All function have a long doctest to explain their purpose in detail. You
+can see Unit test for a practical use of all the advance features all 
+the module.
