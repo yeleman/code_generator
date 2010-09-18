@@ -10,8 +10,8 @@ import itertools
     objects.
 """
 
-def get_code_from_model(model, field='code', default=None, 
-                        order_by='id', qs=None, **kwargs):
+def get_code_from_model(model, field='code', default='0', 
+                        order_by='code', qs=None, **kwargs):
     """
         Get the last code from 'model', where the code is in 'field'.
         You can provide your own qs, otherwise it's going to take all the 
@@ -33,7 +33,7 @@ def get_code_from_model(model, field='code', default=None,
     try:
         return getattr(qs[0], field)
     except IndexError:
-        if default:
+        if default is not None:
             return default
         raise ValueError('No existing code, please provide a default value') 
     

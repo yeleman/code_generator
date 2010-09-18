@@ -1,4 +1,4 @@
-Small lib to generate uniques codes, useful to identity a object in a short
+Small lib to generate unique codes, useful to identity an object in a short
 yet non confusing way.
 
 We use it to generate codes for objects in SMS systems so the user
