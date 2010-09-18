@@ -7,9 +7,11 @@ But don't take my word for it and use with care.
 
 """
 
+import re
+
 from django.db import models
 
-from code_generator import generate_code, get_code_from_model
+from code_generator import generate_code, get_code_from_model, increment_base_10
 
 
 class CodeField(models.CharField):
@@ -40,7 +42,8 @@ class CodeField(models.CharField):
         models.CharField.__init__(self, *args, **kwargs)
         
         self.gen_kwargs = gen_kwargs
-    
+        self.pattern = r'^(?:%(prefix)s)?\d+(?:%(suffix)s)?$' % gen_kwargs
+        self.regexp = re.compile(self.pattern)
     
     def pre_save(self, model_instance, add):
     
@@ -49,14 +52,19 @@ class CodeField(models.CharField):
         
         if not code:
         
+            # todo: we can do that much better
             # check if the code match the prefix / suffix
-            #get_code_from_model
-            
-            code = generate_code(get_code_from_model, 
-                                 model=model_instance.__class__, 
-                                 field=self.attname, **self.gen_kwargs)
-                                     
-                                     
+            # get_code_from_model
+            qs = model_instance.__class__.objects.all()
+            code = ''            
+
+            while not self.regexp.match(code):
+                
+                code = get_code_from_model(model=model_instance.__class__, qs=qs,
+                                          field=self.attname, **self.gen_kwargs)
+                qs = qs.exclude(**{self.attname:code})
+
+            code = increment_base_10(code, **self.gen_kwargs)
         
         setattr(model_instance, self.attname, code)
         return code
