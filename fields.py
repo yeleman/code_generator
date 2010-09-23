@@ -71,4 +71,4 @@ class CodeField(models.CharField):
         
 
     def value_to_string(self, obj):
-        return repr(obj)
+        return getattr(obj, self.attname)
