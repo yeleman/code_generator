@@ -134,6 +134,12 @@ def generate_tracking_tag(start='2a2', base_numbers='2345679',
 
     return ''.join(next_tag)
     
+#TODO: make generate function generate method of classes
+# - inside you define the previous code functin
+# - the next code fonction
+# - a match for the next code
+# - a redo code fonction default ting to next code function if not exists
+#   and if exists redo the code if match doesn't work
 
 def generate_code(get_previous_code_function, 
                   get_next_code_function=increment_base_10, 
