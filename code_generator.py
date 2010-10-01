@@ -24,14 +24,18 @@ def get_code_from_model(model, field='code', default='0',
 
     if not qs:
         qs = model.objects.all()
-        
-    if order_by is None:
-        order_by = field
-    
-    qs = qs.order_by('-'+order_by)
-        
+
+    # we have to loop in order to catch-n-skip exceptions
+    nqs = []
+    for m in qs:
+        try:
+            nqs.append(int(getattr(m, field).lstrip(kwargs['prefix']).rstrip(kwargs['suffix'])))
+        except ValueError:
+            continue
+    nqs.sort(reverse=True)
+
     try:
-        return getattr(qs[0], field)
+        return "%s%s%s" % (kwargs['prefix'], nqs[0], kwargs['suffix'])
     except IndexError:
         if default is not None:
             return default
